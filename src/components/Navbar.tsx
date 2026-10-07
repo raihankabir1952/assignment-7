@@ -5,6 +5,7 @@ import { connection } from "next/server";
 import NavLink from "./Navlink";
 import Marquee from "./Marquee";
 import Hero from "./Hero";
+import Footer from "./Footer";
 
 // Dynamic part: only this component waits for the request
 const CurrentDate = async () => {
@@ -73,6 +74,7 @@ const Navbar = () => {
             </div>
             <Marquee></Marquee>
             <Hero></Hero>
+             <Footer />
 
            
         </header>
