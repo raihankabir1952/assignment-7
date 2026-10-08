@@ -4,22 +4,55 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { FcGoogle } from "react-icons/fc";
 import { FaGithub } from "react-icons/fa";
+import toast from "react-hot-toast";
+import { authClient } from "@/lib/auth-client";
 
 const SignUpPage = () => {
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
+    const [error, setError] = useState("");
+    const [loading, setLoading] = useState(false);
 
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (
+        e: React.FormEvent<HTMLFormElement>
+    ) => {
         e.preventDefault();
 
-        console.log({
-            name,
-            email,
-            password,
-            confirmPassword,
-        });
+        setError("");
+
+        if (password !== confirmPassword) {
+            setError("পাসওয়ার্ড দুটি একই নয়।");
+            return;
+        }
+
+        try {
+            setLoading(true);
+
+            const { error } = await authClient.signUp.email({
+                name,
+                email,
+                password,
+            });
+
+            if (error) {
+                setError(error.message);
+                toast.error(error.message);
+                return;
+            }
+
+            toast.success("অ্যাকাউন্ট সফলভাবে তৈরি হয়েছে!");
+
+            window.location.href = "/";
+        } catch (error) {
+            console.error(error);
+
+            setError("সাইন আপ করতে সমস্যা হয়েছে। আবার চেষ্টা করুন।");
+            toast.error("সাইন আপ করতে সমস্যা হয়েছে। আবার চেষ্টা করুন।");
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -27,17 +60,18 @@ const SignUpPage = () => {
             {/* Header */}
             <div className="text-center mb-6">
                 <h1 className="text-2xl font-bold text-gray-900 mb-2">
-                    অ্যাকাউন্ট তৈরি করুন
+                    সাইন আপ
                 </h1>
 
                 <p className="text-gray-500 text-sm">
-                    বিনা খরচে সাইন আপ করে সব বিস্তারিত দাম দেখুন।
+                    অ্যাকাউন্ট তৈরি করে বিস্তারিত বাজার দর ও অন্যান্য সুবিধা
+                    দেখুন।
                 </p>
             </div>
 
             {/* Sign Up Card */}
             <div className="w-full max-w-md bg-white rounded-2xl p-8 border border-gray-100 shadow-sm">
-                <form onSubmit={handleSubmit} className="space-y-4">
+                <form onSubmit={handleSubmit} className="space-y-5">
                     {/* Name */}
                     <div>
                         <label
@@ -130,12 +164,20 @@ const SignUpPage = () => {
                         />
                     </div>
 
+                    {/* Error */}
+                    {error && (
+                        <p className="rounded-xl bg-red-50 px-4 py-2.5 text-sm text-red-600">
+                            {error}
+                        </p>
+                    )}
+
                     {/* Sign Up Button */}
                     <button
                         type="submit"
-                        className="w-full py-2.5 px-4 bg-[#008a45] hover:bg-[#007339] text-white font-medium rounded-xl shadow-md shadow-green-900/10 transition-all text-sm"
+                        disabled={loading}
+                        className="w-full py-2.5 px-4 bg-[#008a45] hover:bg-[#007339] disabled:bg-gray-400 text-white font-medium rounded-xl shadow-md shadow-green-900/10 transition-all text-sm"
                     >
-                        সাইন আপ
+                        {loading ? "সাইন আপ হচ্ছে..." : "সাইন আপ"}
                     </button>
                 </form>
 
@@ -171,7 +213,7 @@ const SignUpPage = () => {
 
                 {/* Sign In */}
                 <div className="text-center text-xs text-gray-600">
-                    অ্যাকাউন্ট আছে?{" "}
+                    আগে থেকেই অ্যাকাউন্ট আছে?{" "}
                     <Link
                         href="/sign-in"
                         className="text-[#008a45] hover:underline font-semibold"
