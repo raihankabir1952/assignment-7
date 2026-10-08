@@ -1,5 +1,6 @@
 import React from "react";
 import { cacheLife } from "next/cache";
+import Link from "next/link";
 
 interface Change {
     dir: "up" | "down";
@@ -8,7 +9,8 @@ interface Change {
 
 interface Product {
     id: string | number;
-    image: string; 
+    slug: string;
+    image: string;
     nameBn: string;
     today: number;
     unit: string;
@@ -46,6 +48,7 @@ const TodayPriceUp = async () => {
 
                 <div className="flex items-center gap-2 mb-5">
                     <span className="text-red-600 text-sm">▲</span>
+
                     <p className="font-bold text-gray-900">
                         আজ দাম বেড়েছে
                     </p>
@@ -53,9 +56,10 @@ const TodayPriceUp = async () => {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                     {priceUpProducts.map((product) => (
-                        <div
+                        <Link
+                            href={`/products/${product.slug}`}
                             key={product.id}
-                            className="rounded-2xl border border-gray-200 bg-white/80 p-4"
+                            className="rounded-2xl border border-gray-200 bg-white/80 p-4 hover:border-[#008a45] hover:shadow-sm transition-all"
                         >
                             {/* Top: emoji + name + unit */}
                             <div className="flex items-center gap-3">
@@ -67,8 +71,11 @@ const TodayPriceUp = async () => {
                                     <h5 className="truncate font-bold text-gray-900">
                                         {product.nameBn}
                                     </h5>
+
                                     <p className="text-xs text-gray-500">
-                                        প্রতি {unitBn[product.unit] ?? product.unit}
+                                        প্রতি{" "}
+                                        {unitBn[product.unit] ??
+                                            product.unit}
                                     </p>
                                 </div>
                             </div>
@@ -84,7 +91,9 @@ const TodayPriceUp = async () => {
                                         <span className="text-lg font-bold">
                                             {toBn(product.today)}
                                         </span>{" "}
-                                        <span className="text-sm">টাকা</span>
+                                        <span className="text-sm">
+                                            টাকা
+                                        </span>
                                     </p>
 
                                     <span className="rounded-full bg-red-50 px-3 py-1 text-xs font-semibold text-red-600">
@@ -92,7 +101,7 @@ const TodayPriceUp = async () => {
                                     </span>
                                 </div>
                             </div>
-                        </div>
+                        </Link>
                     ))}
                 </div>
 

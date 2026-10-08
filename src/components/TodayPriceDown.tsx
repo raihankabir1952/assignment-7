@@ -1,19 +1,24 @@
-import React from 'react';
-import { cacheLife } from 'next/cache';
+import React from "react";
+import { cacheLife } from "next/cache";
+import Link from "next/link";
 
 interface Change {
     dir: "up" | "down";
     pct: number;
 }
+
 interface Product {
     id: string | number;
+    slug: string;
     image: string;
     nameBn: string;
     today: number;
     unit: string;
-    change: Change
+    change: Change;
 }
+
 const toBn = (n: number) => n.toLocaleString("bn-BD");
+
 const unitBn: Record<string, string> = {
     kg: "কেজি",
     dozen: "ডজন",
@@ -27,12 +32,15 @@ const TodayPriceDown = async () => {
     "use cache";
     cacheLife("hours");
 
-    const res = await fetch("https://api.api-store.workers.dev/api/bazardor/products")
-    const data: Product[] = await res.json()
+    const res = await fetch(
+        "https://api.api-store.workers.dev/api/bazardor/products"
+    );
+
+    const data: Product[] = await res.json();
 
     const priceDownProducts = data
         .filter((product) => product.change.dir === "down")
-        .slice(0, 6)
+        .slice(0, 6);
 
     return (
         <section className="w-full bg-[#f4f8f5] py-10">
@@ -50,9 +58,10 @@ const TodayPriceDown = async () => {
                 {/* Products */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                     {priceDownProducts.map((product) => (
-                        <div
+                        <Link
+                            href={`/products/${product.slug}`}
                             key={product.id}
-                            className="rounded-2xl border border-gray-200 bg-white/80 p-4"
+                            className="rounded-2xl border border-gray-200 bg-white/80 p-4 hover:border-[#008a45] hover:shadow-sm transition-all"
                         >
                             {/* Top: emoji + name + unit */}
                             <div className="flex items-center gap-3">
@@ -94,7 +103,7 @@ const TodayPriceDown = async () => {
                                     </span>
                                 </div>
                             </div>
-                        </div>
+                        </Link>
                     ))}
                 </div>
 

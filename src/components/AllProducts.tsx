@@ -1,5 +1,6 @@
 import React from "react";
 import { cacheLife } from "next/cache";
+import Link from "next/link";
 
 interface Change {
     dir: "up" | "down";
@@ -8,6 +9,7 @@ interface Change {
 
 interface Product {
     id: string | number;
+    slug: string;
     image: string;
     nameBn: string;
     today: number;
@@ -56,9 +58,10 @@ const AllProducts = async () => {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                     {data.map((product) => (
-                        <div
+                        <Link
+                            href={`/products/${product.slug}`}
                             key={product.id}
-                            className="rounded-2xl border border-gray-200 bg-white/80 p-4"
+                            className="rounded-2xl border border-gray-200 bg-white/80 p-4 hover:border-[#008a45] hover:shadow-sm transition-all"
                         >
                             <div className="flex items-center gap-3">
                                 <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gray-100 text-2xl">
@@ -107,7 +110,7 @@ const AllProducts = async () => {
                                     </span>
                                 </div>
                             </div>
-                        </div>
+                        </Link>
                     ))}
                 </div>
 
