@@ -74,7 +74,7 @@ const Navbar = () => {
             </div>
             <Marquee></Marquee>
             {/* <Hero></Hero> */}
-             <Footer />
+             {/* <Footer /> */}
 
            
         </header>
