@@ -73,7 +73,7 @@ const Navbar = () => {
                 
             </div>
             <Marquee></Marquee>
-            <Hero></Hero>
+            {/* <Hero></Hero> */}
              <Footer />
 
            
