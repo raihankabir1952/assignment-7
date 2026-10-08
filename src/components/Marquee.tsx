@@ -17,6 +17,8 @@ interface Product {
     change: Change;
 }
 
+const toBn = (number: number) => number.toLocaleString("bn-BD");
+
 const Marquee = async () => {
     const res = await fetch(
         "https://api.api-store.workers.dev/api/bazardor/products",
@@ -31,17 +33,13 @@ const Marquee = async () => {
 
     return (
         <div className="w-full bg-white text-black overflow-hidden">
-            <MarqueeText
-                direction="right"
-                duration={10}
-                className="py-2"
-            >
+            <MarqueeText direction="right" duration={10} className="py-2">
                 {data.map((product) => (
                     <span key={product.id}>
                         <span>
                             {product.image}
                             {product.nameBn}{" "}
-                            {product.today} টাকা/
+                            {toBn(product.today)} টাকা/
                             {product.unit === "kg"
                                 ? "কেজি"
                                 : product.unit}{" "}
@@ -56,7 +54,7 @@ const Marquee = async () => {
                                 {product.change.dir === "up"
                                     ? "▲"
                                     : "▼"}{" "}
-                                {product.change.pct}%
+                                {toBn(product.change.pct)}%
                             </span>
                         </span>
 

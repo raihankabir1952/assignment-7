@@ -4,6 +4,7 @@ import Image from "next/image";
 import { connection } from "next/server";
 import NavLink from "./Navlink";
 import Marquee from "./Marquee";
+import Link from "next/link";
 import Hero from "./Hero";
 import Footer from "./Footer";
 
@@ -56,27 +57,33 @@ const Navbar = () => {
 
                 {/* Right side buttons */}
                 <div className="flex items-center gap-4">
-                    <button className="text-gray-800 hover:text-black font-semibold text-sm px-3 py-2 transition-colors">
+                    <Link
+                        href="/sign-in"
+                        className="text-gray-800 hover:text-black font-semibold text-sm px-3 py-2 transition-colors"
+                    >
                         সাইন ইন
-                    </button>
+                    </Link>
 
-                    <button className="bg-[#008a45] hover:bg-[#007339] text-white font-semibold text-sm px-6 py-2.5 rounded-xl shadow-md shadow-green-900/10 transition-all">
+                    <Link
+                        href="/sign-up"
+                        className="bg-[#008a45] hover:bg-[#007339] text-white font-semibold text-sm px-6 py-2.5 rounded-xl shadow-md shadow-green-900/10 transition-all"
+                    >
                         সাইন আপ
-                    </button>
+                    </Link>
                 </div>
             </div>
 
             {/* Navigation Links */}
-            
+
             <div className="max-w-7xl mx-auto px-4">
                 <NavLink></NavLink>
-                
+
             </div>
             <Marquee></Marquee>
             {/* <Hero></Hero> */}
-             {/* <Footer /> */}
+            {/* <Footer /> */}
 
-           
+
         </header>
     );
 };
