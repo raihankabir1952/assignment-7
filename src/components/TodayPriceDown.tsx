@@ -38,8 +38,10 @@ const TodayPriceDown = async () => {
 
     const data: Product[] = await res.json();
 
+    // সবচেয়ে বেশি দাম কমেছে এমন Top 6 products
     const priceDownProducts = data
         .filter((product) => product.change.dir === "down")
+        .sort((a, b) => a.change.pct - b.change.pct)
         .slice(0, 6);
 
     return (
@@ -99,7 +101,7 @@ const TodayPriceDown = async () => {
                                     </p>
 
                                     <span className="rounded-full bg-green-50 px-3 py-1 text-xs font-semibold text-green-600">
-                                        ▼ {toBn(product.change.pct)}%
+                                        ▼ {toBn(Math.abs(product.change.pct))}%
                                     </span>
                                 </div>
                             </div>
