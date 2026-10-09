@@ -43,11 +43,16 @@ const SignUpPage = () => {
                 password,
             });
 
+
             if (error) {
-                setError(error.message);
-                toast.error(error.message);
+                const errorMessage =
+                    error.message ?? "সাইন আপ করতে সমস্যা হয়েছে। আবার চেষ্টা করুন।";
+
+                setError(errorMessage);
+                toast.error(errorMessage);
                 return;
             }
+
 
             toast.success("অ্যাকাউন্ট সফলভাবে তৈরি হয়েছে!");
             router.push("/");

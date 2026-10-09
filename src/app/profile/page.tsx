@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
@@ -14,15 +14,12 @@ const ProfilePage = () => {
     const user = session?.user;
     const name = user?.name ?? "";
     const email = user?.email ?? "";
+    const initial = name.trim().charAt(0).toUpperCase() || "U";
 
     const [isEditing, setIsEditing] = useState(false);
     const [newName, setNewName] = useState("");
     const [isSaving, setIsSaving] = useState(false);
     const [isSigningOut, setIsSigningOut] = useState(false);
-
-    useEffect(() => {
-        setNewName(name);
-    }, [name]);
 
     const handleUpdateName = async (
         e: React.FormEvent<HTMLFormElement>
@@ -49,7 +46,9 @@ const ProfilePage = () => {
             });
 
             if (error) {
-                toast.error(error.message || "নাম আপডেট করা যায়নি।");
+                toast.error(
+                    error.message ?? "নাম আপডেট করা যায়নি।"
+                );
                 return;
             }
 
@@ -58,7 +57,8 @@ const ProfilePage = () => {
             setIsEditing(false);
             toast.success("আপনার নাম সফলভাবে আপডেট হয়েছে!");
             router.refresh();
-        } catch {
+        } catch (err) {
+            console.error("Name update failed:", err);
             toast.error("কিছু সমস্যা হয়েছে। আবার চেষ্টা করুন।");
         } finally {
             setIsSaving(false);
@@ -72,14 +72,17 @@ const ProfilePage = () => {
             const { error } = await authClient.signOut();
 
             if (error) {
-                toast.error(error.message || "সাইন আউট করা যায়নি।");
+                toast.error(
+                    error.message ?? "সাইন আউট করা যায়নি।"
+                );
                 return;
             }
 
             toast.success("সফলভাবে সাইন আউট হয়েছে!");
             router.replace("/");
             router.refresh();
-        } catch {
+        } catch (err) {
+            console.error("Sign out failed:", err);
             toast.error("সাইন আউট করতে সমস্যা হয়েছে।");
         } finally {
             setIsSigningOut(false);
@@ -98,20 +101,16 @@ const ProfilePage = () => {
         );
     }
 
-    if (!user) {
+    if (!session) {
         return (
             <main className="flex min-h-[70vh] items-center justify-center bg-[#f4f8f5] px-4 py-10">
-                <div className="w-full max-w-md rounded-2xl border border-gray-200 bg-white p-8 text-center shadow-sm">
-                    <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-green-50 text-[#008a45]">
-                        <span className="text-2xl">🔒</span>
-                    </div>
-
-                    <h1 className="mt-4 text-xl font-bold text-gray-900">
-                        লগ ইন করা প্রয়োজন
+                <div className="w-full max-w-md rounded-2xl bg-white p-8 text-center shadow-sm">
+                    <h1 className="text-xl font-bold text-gray-900">
+                        লগইন করা হয়নি
                     </h1>
 
-                    <p className="mt-2 text-sm text-gray-500">
-                        আপনার প্রোফাইল দেখতে প্রথমে সাইন ইন করুন।
+                    <p className="mt-3 text-sm text-gray-600">
+                        প্রোফাইল দেখতে প্রথমে আপনার অ্যাকাউন্টে লগইন করুন।
                     </p>
 
                     <Link
@@ -120,26 +119,14 @@ const ProfilePage = () => {
                     >
                         সাইন ইন করুন
                     </Link>
-
-                    <div>
-                        <Link
-                            href="/"
-                            className="mt-4 inline-block text-sm text-gray-500 hover:text-[#008a45]"
-                        >
-                            ← হোমে ফিরে যান
-                        </Link>
-                    </div>
                 </div>
             </main>
         );
     }
 
-    const initial = name.trim().charAt(0).toUpperCase() || "U";
-
     return (
         <main className="min-h-[70vh] w-full bg-[#f4f8f5] py-10">
             <div className="mx-auto max-w-2xl px-4 sm:px-6">
-                {/* Back */}
                 <Link
                     href="/"
                     className="text-sm text-gray-600 hover:text-[#008a45]"
@@ -147,9 +134,7 @@ const ProfilePage = () => {
                     ← হোমে ফিরে যান
                 </Link>
 
-                {/* Profile Card */}
                 <div className="mt-5 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-                    {/* Header */}
                     <div className="flex items-center justify-between gap-3 border-b border-gray-100 pb-5">
                         <div className="flex min-w-0 items-center gap-4">
                             <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-[#008a45] text-2xl font-bold text-white">
@@ -167,7 +152,6 @@ const ProfilePage = () => {
                             </div>
                         </div>
 
-                        {/* Sign Out Button */}
                         <button
                             type="button"
                             onClick={handleSignOut}
@@ -175,18 +159,20 @@ const ProfilePage = () => {
                             className="flex shrink-0 items-center gap-2 rounded-xl border border-red-200 px-3 py-2 text-sm font-semibold text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60 sm:px-4"
                         >
                             <FiLogOut size={17} />
+
                             <span className="hidden sm:inline">
-                                {isSigningOut ? "Signing out..." : "সাইন আউট"}
+                                {isSigningOut
+                                    ? "Signing out..."
+                                    : "সাইন আউট"}
                             </span>
+
                             <span className="sm:hidden">
                                 {isSigningOut ? "..." : "বের হন"}
                             </span>
                         </button>
                     </div>
 
-                    {/* User Information */}
                     <div className="mt-6 space-y-5">
-                        {/* Name */}
                         <div>
                             <label className="mb-2 block text-sm font-semibold text-gray-700">
                                 নাম
@@ -231,11 +217,14 @@ const ProfilePage = () => {
                                         <button
                                             type="submit"
                                             disabled={
-                                                isSaving || !newName.trim()
+                                                isSaving ||
+                                                !newName.trim()
                                             }
-                                            className="rounded-xl bg-[#008a45] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#007339] disabled:cursor-not-allowed disabled:opacity-60"
+                                            className="rounded-xl bg-[#008a45] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#007339] disabled:cursor-not-allowed disabled:opacity-60"
                                         >
-                                            {isSaving ? "Saving..." : "Save"}
+                                            {isSaving
+                                                ? "Saving..."
+                                                : "Update Information"}
                                         </button>
 
                                         <button
