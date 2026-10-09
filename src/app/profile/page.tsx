@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
+import { FiLogOut } from "react-icons/fi";
 import { authClient } from "@/lib/auth-client";
 
 const ProfilePage = () => {
@@ -17,12 +18,15 @@ const ProfilePage = () => {
     const [isEditing, setIsEditing] = useState(false);
     const [newName, setNewName] = useState("");
     const [isSaving, setIsSaving] = useState(false);
+    const [isSigningOut, setIsSigningOut] = useState(false);
 
     useEffect(() => {
         setNewName(name);
     }, [name]);
 
-    const handleUpdateName = async (e: React.FormEvent<HTMLFormElement>) => {
+    const handleUpdateName = async (
+        e: React.FormEvent<HTMLFormElement>
+    ) => {
         e.preventDefault();
 
         const trimmedName = newName.trim();
@@ -50,6 +54,7 @@ const ProfilePage = () => {
             }
 
             await authClient.getSession();
+
             setIsEditing(false);
             toast.success("আপনার নাম সফলভাবে আপডেট হয়েছে!");
             router.refresh();
@@ -57,6 +62,27 @@ const ProfilePage = () => {
             toast.error("কিছু সমস্যা হয়েছে। আবার চেষ্টা করুন।");
         } finally {
             setIsSaving(false);
+        }
+    };
+
+    const handleSignOut = async () => {
+        setIsSigningOut(true);
+
+        try {
+            const { error } = await authClient.signOut();
+
+            if (error) {
+                toast.error(error.message || "সাইন আউট করা যায়নি।");
+                return;
+            }
+
+            toast.success("সফলভাবে সাইন আউট হয়েছে!");
+            router.replace("/");
+            router.refresh();
+        } catch {
+            toast.error("সাইন আউট করতে সমস্যা হয়েছে।");
+        } finally {
+            setIsSigningOut(false);
         }
     };
 
@@ -124,20 +150,38 @@ const ProfilePage = () => {
                 {/* Profile Card */}
                 <div className="mt-5 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
                     {/* Header */}
-                    <div className="flex items-center gap-4 border-b border-gray-100 pb-5">
-                        <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-[#008a45] text-2xl font-bold text-white">
-                            {initial}
+                    <div className="flex items-center justify-between gap-3 border-b border-gray-100 pb-5">
+                        <div className="flex min-w-0 items-center gap-4">
+                            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-[#008a45] text-2xl font-bold text-white">
+                                {initial}
+                            </div>
+
+                            <div className="min-w-0">
+                                <h1 className="text-xl font-bold text-gray-900">
+                                    আমার প্রোফাইল
+                                </h1>
+
+                                <p className="mt-1 break-all text-xs text-gray-500 sm:text-sm">
+                                    {email}
+                                </p>
+                            </div>
                         </div>
 
-                        <div className="min-w-0">
-                            <h1 className="text-xl font-bold text-gray-900">
-                                আমার প্রোফাইল
-                            </h1>
-
-                            <p className="mt-1 break-all text-sm text-gray-500">
-                                {name}
-                            </p>
-                        </div>
+                        {/* Sign Out Button */}
+                        <button
+                            type="button"
+                            onClick={handleSignOut}
+                            disabled={isSigningOut}
+                            className="flex shrink-0 items-center gap-2 rounded-xl border border-red-200 px-3 py-2 text-sm font-semibold text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60 sm:px-4"
+                        >
+                            <FiLogOut size={17} />
+                            <span className="hidden sm:inline">
+                                {isSigningOut ? "Signing out..." : "সাইন আউট"}
+                            </span>
+                            <span className="sm:hidden">
+                                {isSigningOut ? "..." : "বের হন"}
+                            </span>
+                        </button>
                     </div>
 
                     {/* User Information */}
@@ -186,7 +230,9 @@ const ProfilePage = () => {
                                     <div className="flex gap-2">
                                         <button
                                             type="submit"
-                                            disabled={isSaving || !newName.trim()}
+                                            disabled={
+                                                isSaving || !newName.trim()
+                                            }
                                             className="rounded-xl bg-[#008a45] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#007339] disabled:cursor-not-allowed disabled:opacity-60"
                                         >
                                             {isSaving ? "Saving..." : "Save"}
@@ -206,23 +252,6 @@ const ProfilePage = () => {
                                     </div>
                                 </form>
                             )}
-                        </div>
-
-                        {/* Email */}
-                        <div>
-                            <label className="mb-2 block text-sm font-semibold text-gray-700">
-                                ইমেইল
-                            </label>
-
-                            <div className="rounded-xl border border-gray-200 bg-gray-100 px-4 py-3">
-                                <p className="break-all text-sm text-gray-600">
-                                    {email}
-                                </p>
-                            </div>
-
-                            <p className="mt-2 text-xs text-gray-400">
-                                ইমেইল পরিবর্তন করা যাবে না।
-                            </p>
                         </div>
                     </div>
                 </div>
