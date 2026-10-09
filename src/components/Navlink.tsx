@@ -8,35 +8,35 @@ interface Category {
     icon: string;
 }
 
-const Navlink = async () => {
-    const res = await fetch(
-        "https://api.api-store.workers.dev/api/bazardor/categories",
-        {
-            next: {
-                revalidate: 3600,
-            },
-        }
-    );
+interface NavlinkProps {
+    categories: Category[];
+}
 
-    const data: Category[] = await res.json();
-
+const Navlink = ({ categories }: NavlinkProps) => {
     return (
-        <div className="w-full flex  mt-5">
-            <div className="flex gap-5">
-                <Link href="/">
+        <nav
+            aria-label="Main navigation"
+            className="border-b border-gray-100 py-3"
+        >
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-3 text-sm font-medium text-gray-700">
+                <Link
+                    href="/"
+                    className="shrink-0 transition-colors hover:text-[#008a45]"
+                >
                     🏠 হোম
                 </Link>
 
-                {data.map((category) => (
+                {categories.map((category) => (
                     <Link
                         href={`/category/${category.slug}`}
                         key={category.id}
+                        className="shrink-0 transition-colors hover:text-[#008a45]"
                     >
                         {category.icon} {category.nameBn}
                     </Link>
                 ))}
             </div>
-        </div>
+        </nav>
     );
 };
 

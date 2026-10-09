@@ -4,8 +4,15 @@ import { connection } from "next/server";
 import NavLink from "./Navlink";
 import Marquee from "./Marquee";
 import AuthNav from "./AuthNav";
+import MobileMenu from "./MobileMenu";
 
-// Dynamic date for Bangladesh
+interface Category {
+    id: string | number;
+    nameBn: string;
+    slug: string;
+    icon: string;
+}
+
 const CurrentDate = async () => {
     await connection();
 
@@ -17,52 +24,78 @@ const CurrentDate = async () => {
     return <>{date}</>;
 };
 
-const Navbar = () => {
+const Navbar = async () => {
+    let categories: Category[] = [];
+
+    try {
+        const res = await fetch(
+            "https://api.api-store.workers.dev/api/bazardor/categories",
+            { next: { revalidate: 3600 } }
+        );
+
+        if (res.ok) {
+            categories = await res.json();
+        }
+    } catch (error) {
+        console.error("Failed to fetch categories:", error);
+    }
+
     return (
-        <header className="w-full bg-white border-b border-gray-100">
-            {/* Top Navbar */}
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
-                {/* Logo + title + date */}
-                <div className="flex items-center gap-3 select-none shrink-0">
-                    <div className="flex items-center justify-center h-12 w-12 rounded-2xl bg-[#008a45] shadow-sm">
-                        <Image
-                            src="/logo-icon.png"
-                            className="h-7 w-7 object-contain brightness-0 invert"
-                            alt="Logo"
-                            width={30}
-                            height={30}
-                            priority
-                        />
+        <header className="relative z-40 w-full bg-white">
+            {/* Main Navbar */}
+            <div className="border-b border-gray-100">
+                <div className="mx-auto flex min-h-20 max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-8">
+                    {/* Logo and Date */}
+                    <div className="flex min-w-0 items-center gap-2 sm:gap-3">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#008a45] shadow-sm sm:h-12 sm:w-12 sm:rounded-2xl">
+                            <Image
+                                src="/logo-icon.png"
+                                className="h-6 w-6 object-contain brightness-0 invert sm:h-7 sm:w-7"
+                                alt="বাজার দর Logo"
+                                width={30}
+                                height={30}
+                                priority
+                            />
+                        </div>
+
+                        <div className="flex min-w-0 flex-col justify-center">
+                            <h1 className="text-lg font-bold leading-tight text-black sm:text-xl">
+                                বাজার দর
+                            </h1>
+
+                            <small className="mt-1 hidden text-xs font-medium text-gray-500 sm:block">
+                                <Suspense
+                                    fallback={
+                                        <span className="inline-block h-3 w-28 animate-pulse rounded bg-gray-100" />
+                                    }
+                                >
+                                    <CurrentDate />
+                                </Suspense>
+                            </small>
+                        </div>
                     </div>
 
-                    <div className="flex flex-col justify-center">
-                        <h1 className="text-xl font-bold text-black leading-tight">
-                            বাজার দর
-                        </h1>
+                    {/* Desktop Auth */}
+                    <div className="hidden shrink-0 lg:block">
+                        <AuthNav />
+                    </div>
 
-                        <small className="text-gray-500 text-xs font-medium mt-0.5">
-                            <Suspense
-                                fallback={
-                                    <span className="inline-block h-3 w-32 rounded bg-gray-100 animate-pulse" />
-                                }
-                            >
-                                <CurrentDate />
-                            </Suspense>
-                        </small>
+                    {/* Mobile / Tablet Drawer */}
+                    <div className="shrink-0 lg:hidden">
+                        <MobileMenu categories={categories} />
                     </div>
                 </div>
-
-                {/* Authentication / User Profile */}
-                <AuthNav />
             </div>
 
-            {/* Navigation Links */}
-            <div className="max-w-7xl mx-auto px-4">
-                <NavLink />
+            {/* Desktop Category Navigation */}
+            <div className="mx-auto hidden max-w-7xl px-4 sm:px-6 lg:block lg:px-8">
+                <NavLink categories={categories} />
             </div>
 
-            {/* Market Price Marquee */}
-            <Marquee />
+            {/* Market Price Marquee - unchanged */}
+            <div className="w-full overflow-hidden">
+                <Marquee />
+            </div>
         </header>
     );
 };
