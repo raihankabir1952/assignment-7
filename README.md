@@ -37,4 +37,4 @@ Configure the required environment variables in `.env.local` before running the 
 
 **Md Raihan Kabir**
 
-GitHub: [raihankabir1952](https://github.com/raihankabir1952)
+GitHub: [raihankabir1952](https://github.com/raihankabir1952/assignment-7)
