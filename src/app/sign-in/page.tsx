@@ -27,8 +27,8 @@ const SignInForm = () => {
 
     const callbackURL =
         requestedCallback?.startsWith("/") &&
-        !requestedCallback.startsWith("//") &&
-        !requestedCallback.includes("\\")
+            !requestedCallback.startsWith("//") &&
+            !requestedCallback.includes("\\")
             ? requestedCallback
             : "/";
 
@@ -56,9 +56,7 @@ const SignInForm = () => {
 
             toast.success("সফলভাবে সাইন ইন হয়েছে!");
 
-            // Return to the requested product or other original page
-            router.replace(callbackURL);
-            router.refresh();
+            window.location.replace(callbackURL);
         } catch (err) {
             console.error(err);
 
