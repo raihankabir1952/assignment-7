@@ -1,14 +1,11 @@
-// src/components/Navbar.tsx
 import React, { Suspense } from "react";
 import Image from "next/image";
 import { connection } from "next/server";
 import NavLink from "./Navlink";
 import Marquee from "./Marquee";
-import Link from "next/link";
-import Hero from "./Hero";
-import Footer from "./Footer";
+import AuthNav from "./AuthNav";
 
-// Dynamic part: only this component waits for the request
+// Dynamic date for Bangladesh
 const CurrentDate = async () => {
     await connection();
 
@@ -20,13 +17,13 @@ const CurrentDate = async () => {
     return <>{date}</>;
 };
 
-// Not async anymore
 const Navbar = () => {
     return (
         <header className="w-full bg-white border-b border-gray-100">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            {/* Top Navbar */}
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
                 {/* Logo + title + date */}
-                <div className="flex items-center gap-3 select-none">
+                <div className="flex items-center gap-3 select-none shrink-0">
                     <div className="flex items-center justify-center h-12 w-12 rounded-2xl bg-[#008a45] shadow-sm">
                         <Image
                             src="/logo-icon.png"
@@ -55,35 +52,17 @@ const Navbar = () => {
                     </div>
                 </div>
 
-                {/* Right side buttons */}
-                <div className="flex items-center gap-4">
-                    <Link
-                        href="/sign-in"
-                        className="text-gray-800 hover:text-black font-semibold text-sm px-3 py-2 transition-colors"
-                    >
-                        সাইন ইন
-                    </Link>
-
-                    <Link
-                        href="/sign-up"
-                        className="bg-[#008a45] hover:bg-[#007339] text-white font-semibold text-sm px-6 py-2.5 rounded-xl shadow-md shadow-green-900/10 transition-all"
-                    >
-                        সাইন আপ
-                    </Link>
-                </div>
+                {/* Authentication / User Profile */}
+                <AuthNav />
             </div>
 
             {/* Navigation Links */}
-
             <div className="max-w-7xl mx-auto px-4">
-                <NavLink></NavLink>
-
+                <NavLink />
             </div>
-            <Marquee></Marquee>
-            {/* <Hero></Hero> */}
-            {/* <Footer /> */}
 
-
+            {/* Market Price Marquee */}
+            <Marquee />
         </header>
     );
 };

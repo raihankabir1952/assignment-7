@@ -7,17 +7,20 @@ import { FaGithub } from "react-icons/fa";
 import toast from "react-hot-toast";
 import { authClient } from "@/lib/auth-client";
 
+type SocialProvider = "google" | "github";
+
 const SignInPage = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
+    const [socialLoading, setSocialLoading] =
+        useState<SocialProvider | null>(null);
 
     const handleSubmit = async (
         e: React.FormEvent<HTMLFormElement>
     ) => {
         e.preventDefault();
-
         setError("");
 
         try {
@@ -29,16 +32,15 @@ const SignInPage = () => {
             });
 
             if (error) {
-                const message = "ইমেইল অথবা পাসওয়ার্ড সঠিক নয়।";
+                const message =
+                    "ইমেইল অথবা পাসওয়ার্ড সঠিক নয়।";
 
                 setError(message);
                 toast.error(message);
-
                 return;
             }
 
             toast.success("সফলভাবে সাইন ইন হয়েছে!");
-
             window.location.href = "/";
         } catch (error) {
             console.error(error);
@@ -50,6 +52,39 @@ const SignInPage = () => {
             toast.error(message);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleSocialLogin = async (
+        provider: SocialProvider
+    ) => {
+        setError("");
+
+        try {
+            setSocialLoading(provider);
+
+            const { error } = await authClient.signIn.social({
+                provider,
+                callbackURL: "/",
+            });
+
+            if (error) {
+                toast.error(
+                    provider === "google"
+                        ? "Google দিয়ে লগইন করা যায়নি। আবার চেষ্টা করুন।"
+                        : "GitHub দিয়ে লগইন করা যায়নি। আবার চেষ্টা করুন।"
+                );
+
+                setSocialLoading(null);
+            }
+        } catch (error) {
+            console.error(error);
+
+            toast.error(
+                "সোশ্যাল লগইন করতে সমস্যা হয়েছে। আবার চেষ্টা করুন।"
+            );
+
+            setSocialLoading(null);
         }
     };
 
@@ -125,7 +160,7 @@ const SignInPage = () => {
                     {/* Sign In Button */}
                     <button
                         type="submit"
-                        disabled={loading}
+                        disabled={loading || socialLoading !== null}
                         className="w-full py-2.5 px-4 bg-[#008a45] hover:bg-[#007339] disabled:bg-gray-400 text-white font-medium rounded-xl shadow-md shadow-green-900/10 transition-all text-sm"
                     >
                         {loading ? "সাইন ইন হচ্ছে..." : "সাইন ইন"}
@@ -146,19 +181,31 @@ const SignInPage = () => {
                     {/* Google */}
                     <button
                         type="button"
-                        className="flex items-center justify-center gap-2 px-3 py-2.5 border border-gray-200 rounded-xl bg-white hover:bg-gray-50 text-xs font-semibold text-gray-700 transition-colors"
+                        disabled={loading || socialLoading !== null}
+                        onClick={() => handleSocialLogin("google")}
+                        className="flex items-center justify-center gap-2 px-3 py-2.5 border border-gray-200 rounded-xl bg-white hover:bg-gray-50 disabled:opacity-60 text-xs font-semibold text-gray-700 transition-colors"
                     >
                         <FcGoogle size={20} />
-                        <span>Google</span>
+                        <span>
+                            {socialLoading === "google"
+                                ? "Google-এ যাচ্ছি..."
+                                : "Google"}
+                        </span>
                     </button>
 
                     {/* GitHub */}
                     <button
                         type="button"
-                        className="flex items-center justify-center gap-2 px-3 py-2.5 border border-gray-200 rounded-xl bg-white hover:bg-gray-50 text-xs font-semibold text-gray-700 transition-colors"
+                        disabled={loading || socialLoading !== null}
+                        onClick={() => handleSocialLogin("github")}
+                        className="flex items-center justify-center gap-2 px-3 py-2.5 border border-gray-200 rounded-xl bg-white hover:bg-gray-50 disabled:opacity-60 text-xs font-semibold text-gray-700 transition-colors"
                     >
                         <FaGithub size={20} />
-                        <span>GitHub</span>
+                        <span>
+                            {socialLoading === "github"
+                                ? "GitHub-এ যাচ্ছি..."
+                                : "GitHub"}
+                        </span>
                     </button>
                 </div>
 
