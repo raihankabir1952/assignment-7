@@ -2,6 +2,8 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 import { FcGoogle } from "react-icons/fc";
 import { FaGithub } from "react-icons/fa";
 import toast from "react-hot-toast";
@@ -9,13 +11,26 @@ import { authClient } from "@/lib/auth-client";
 
 type SocialProvider = "google" | "github";
 
-const SignInPage = () => {
+const SignInForm = () => {
+    const router = useRouter();
+    const searchParams = useSearchParams();
+
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
     const [socialLoading, setSocialLoading] =
         useState<SocialProvider | null>(null);
+
+    // Only allow internal relative URLs to avoid open redirects
+    const requestedCallback = searchParams.get("callbackURL");
+
+    const callbackURL =
+        requestedCallback?.startsWith("/") &&
+        !requestedCallback.startsWith("//") &&
+        !requestedCallback.includes("\\")
+            ? requestedCallback
+            : "/";
 
     const handleSubmit = async (
         e: React.FormEvent<HTMLFormElement>
@@ -27,13 +42,12 @@ const SignInPage = () => {
             setLoading(true);
 
             const { error } = await authClient.signIn.email({
-                email,
+                email: email.trim(),
                 password,
             });
 
             if (error) {
-                const message =
-                    "ইমেইল অথবা পাসওয়ার্ড সঠিক নয়।";
+                const message = "ইমেইল অথবা পাসওয়ার্ড সঠিক নয়।";
 
                 setError(message);
                 toast.error(message);
@@ -41,9 +55,12 @@ const SignInPage = () => {
             }
 
             toast.success("সফলভাবে সাইন ইন হয়েছে!");
-            window.location.href = "/";
-        } catch (error) {
-            console.error(error);
+
+            // Return to the requested product or other original page
+            router.replace(callbackURL);
+            router.refresh();
+        } catch (err) {
+            console.error(err);
 
             const message =
                 "সাইন ইন করতে সমস্যা হয়েছে। আবার চেষ্টা করুন।";
@@ -65,7 +82,7 @@ const SignInPage = () => {
 
             const { error } = await authClient.signIn.social({
                 provider,
-                callbackURL: "/",
+                callbackURL,
             });
 
             if (error) {
@@ -77,8 +94,8 @@ const SignInPage = () => {
 
                 setSocialLoading(null);
             }
-        } catch (error) {
-            console.error(error);
+        } catch (err) {
+            console.error(err);
 
             toast.error(
                 "সোশ্যাল লগইন করতে সমস্যা হয়েছে। আবার চেষ্টা করুন।"
@@ -186,6 +203,7 @@ const SignInPage = () => {
                         className="flex items-center justify-center gap-2 px-3 py-2.5 border border-gray-200 rounded-xl bg-white hover:bg-gray-50 disabled:opacity-60 text-xs font-semibold text-gray-700 transition-colors"
                     >
                         <FcGoogle size={20} />
+
                         <span>
                             {socialLoading === "google"
                                 ? "Google-এ যাচ্ছি..."
@@ -201,6 +219,7 @@ const SignInPage = () => {
                         className="flex items-center justify-center gap-2 px-3 py-2.5 border border-gray-200 rounded-xl bg-white hover:bg-gray-50 disabled:opacity-60 text-xs font-semibold text-gray-700 transition-colors"
                     >
                         <FaGithub size={20} />
+
                         <span>
                             {socialLoading === "github"
                                 ? "GitHub-এ যাচ্ছি..."
@@ -231,6 +250,20 @@ const SignInPage = () => {
                 </Link>
             </div>
         </div>
+    );
+};
+
+const SignInPage = () => {
+    return (
+        <Suspense
+            fallback={
+                <div className="min-h-screen bg-[#f3f6f3] flex items-center justify-center">
+                    <div className="h-28 w-full max-w-md animate-pulse rounded-2xl bg-gray-100" />
+                </div>
+            }
+        >
+            <SignInForm />
+        </Suspense>
     );
 };
 
