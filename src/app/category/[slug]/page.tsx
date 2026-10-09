@@ -1,5 +1,6 @@
 import React, { Suspense } from "react";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 
 interface PageProps {
     params: Promise<{ slug: string }>;
@@ -59,6 +60,15 @@ const CategoryContent = async ({
         (product) => product.category === slug
     );
 
+    if (categoryProducts.length === 0) {
+        notFound();
+    }
+
+    // Sorting
+    if (sort === "priceAsc") {
+        categoryProducts.sort((a, b) => a.today - b.today);
+    }
+
     // Sorting
     if (sort === "priceAsc") {
         categoryProducts.sort((a, b) => a.today - b.today);
@@ -110,10 +120,10 @@ const CategoryContent = async ({
                             {sort === "priceAsc"
                                 ? "দাম: কম থেকে বেশি"
                                 : sort === "priceDesc"
-                                  ? "দাম: বেশি থেকে কম"
-                                  : sort === "change"
-                                    ? "বেশি পরিবর্তন"
-                                    : "ডিফল্ট"}
+                                    ? "দাম: বেশি থেকে কম"
+                                    : sort === "change"
+                                        ? "বেশি পরিবর্তন"
+                                        : "ডিফল্ট"}
 
                             <span className="text-[10px]">⌄</span>
                         </summary>
